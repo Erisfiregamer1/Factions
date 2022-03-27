@@ -1,0 +1,42 @@
+# This workflow automatically tests new commits and pull requests as they come in.
+# Note that this does not upload any artifacts, you will need to compile mcMMO manually
+# if you wish to create the actual jar.
+name: Compile and test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '1.6.x'
+
+jobs:
+  compile:
+    name: Maven compiler
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Java 17 setup
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-package: jdk
+        java-version: '17'
+
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Build via Maven
+      run: mvn verify -B --file pom.xml
+    
+    - name: Output artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Package
+        path: target
