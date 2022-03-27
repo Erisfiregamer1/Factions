@@ -1,0 +1,40 @@
+name: Compile and test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '1.6.x'
+      
+jobs:
+  compile:
+    name: Maven compiler
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Java 17 setup
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-package: jdk
+        java-version: '17'
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    # 4. Build via Maven 
+    - name: Build via Maven
+      run: mvn verify -B --file pom.xml
+    
+    - name: Output artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Package
+        path: target
