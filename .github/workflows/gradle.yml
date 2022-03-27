@@ -24,10 +24,11 @@ jobs:
           distribution: 'zulu'
 
       - name: Build with Gradle
-        run: ./gradlew build --info
+        uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+        with:
+          arguments: build
 
       - name: Upload build results
-        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }} Java ${{ matrix.java }} build results
